@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>稻妻午后 · 与托马的茶会</title>
+    <link rel="stylesheet" href="../assets/css/common.css">
+    <style>
+        .story-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .character-image {
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(255, 107, 53, 0.3),
+                        0 0 100px rgba(255, 157, 0, 0.1);
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+        }
+        
+        .character-image:hover {
+            transform: scale(1.02);
+            box-shadow: 0 25px 80px rgba(255, 107, 53, 0.4),
+                        0 0 120px rgba(255, 157, 0, 0.15);
+        }
+        
+        .dialog-box {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        .dialog-box::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #ff9d00, #ff6b35);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+        
+        .choice-btn {
+            background: linear-gradient(145deg, rgba(255, 157, 0, 0.15), rgba(255, 107, 53, 0.1));
+            border: 1px solid rgba(255, 157, 0, 0.4);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            color: var(--accent);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            width: 100%;
+            margin-bottom: 0.8rem;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1rem;
+        }
+        
+        .choice-btn:hover {
+            background: linear-gradient(145deg, rgba(255, 157, 0, 0.3), rgba(255, 107, 53, 0.2));
+            border-color: rgba(255, 157, 0, 0.7);
+            transform: translateX(8px);
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.2);
+        }
+        
+        .name-tag {
+            background: linear-gradient(90deg, #ff6b35, #ff9d00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+        
+        .text-content {
+            color: var(--accent);
+            line-height: 1.8;
+            font-size: 1.05rem;
+            white-space: pre-line;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .leaf-decoration {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        
+        .leaf-1 { top: 10%; left: 5%; transform: rotate(-30deg); }
+        .leaf-2 { top: 30%; right: 8%; transform: rotate(45deg); }
+        .leaf-3 { bottom: 15%; left: 10%; transform: rotate(15deg); }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1rem 2rem 0;
+        }
+        
+        .back-btn {
+            color: var(--accent);
+            text-decoration: none;
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .back-btn:hover {
+            opacity: 1;
+        }
+        
+        .affection-display {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+        }
+        
+        .affection-bar {
+            width: 80px;
+            height: 6px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .affection-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.5s ease;
+        }
+        
+        .affection-text {
+            font-size: 0.85rem;
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <!-- 装饰元素 -->
+    <div class="ambient-light light-1"></div>
+    <div class="ambient-light light-2"></div>
+    <svg class="leaf-decoration leaf-1" viewBox="0 0 100 100" fill="#ff9d00">
+        <path d="M50 10 C70 30, 80 60, 50 90 C20 60, 30 30, 50 10"/>
+    </svg>
+    <svg class="leaf-decoration leaf-2" viewBox="0 0 100 100" fill="#ff6b35">
+        <path d="M50 10 C70 30, 80 60, 50 90 C20 60, 30 30, 50 10"/>
+    </svg>
+    <svg class="leaf-decoration leaf-3" viewBox="0 0 100 100" fill="#ff9d00">
+        <path d="M50 10 C70 30, 80 60, 50 90 C20 60, 30 30, 50 10"/>
+    </svg>
+
+    <!-- 顶部栏 -->
+    <div class="status-bar">
+        <a href="../index.html" class="back-btn">← 返回花园</a>
+        <div class="affection-display">
+            <span style="font-size: 0.85rem; color: rgba(255,236,209,0.7);">❤️</span>
+            <div class="affection-bar">
+                <div class="affection-fill" id="affection-bar" style="width: 30%"></div>
+            </div>
+            <span class="affection-text" id="affection-text">30</span>
+        </div>
+    </div>
+
+    <div class="story-container">
+        <!-- 标题 -->
+        <div class="text-center mb-6 fade-in" style="text-align: center; margin-bottom: 2rem;">
+            <h1 style="font-size: 1.8rem; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem;">
+                🍁 稻妻午后 · 与托马的茶会
+            </h1>
+            <p style="color: rgba(255,236,209,0.5); font-size: 0.9rem;">社奉行邸的静谧时光</p>
+        </div>
+
+        <!-- 人物图片 -->
+        <div class="flex justify-center fade-in" style="display: flex; justify-content: center;">
+            <img src="../assets/images/tohma-main.jpg" 
+                 alt="托马" 
+                 class="character-image" style="width: 100%; max-width: 450px;">
+        </div>
+
+        <!-- 对话框 -->
+        <div class="dialog-box fade-in" id="dialog">
+            <div class="name-tag mb-3" style="margin-bottom: 1rem;">托马</div>
+            <div class="text-content" id="dialog-text">
+                「啊，你来了。刚好泡了新的三彩团子配抹茶，要坐下一起尝尝吗？」
+            </div>
+        </div>
+
+        <!-- 选项区域 -->
+        <div id="choices" class="mt-6 fade-in" style="margin-top: 1.5rem;">
+        </div>
+    </div>
+
+    <script>
+        let affection = 30;
+        let currentScene = 0;
+
+        const scenes = {
+            0: {
+                text: "「啊，你来了。刚好泡了新的三彩团子配抹茶，要坐下一起尝尝吗？」",
+                choices: [
+                    { next: 1, delta: 5, text: "「那就打扰了——你今天不用忙神里家的事吗？」" },
+                    { next: 2, delta: -5, text: "「托马你居然还会泡茶？我以为你只会打扫呢！」" },
+                    { next: 3, delta: 10, text: "（静静坐下，看着庭中飘落的枫叶）" }
+                ]
+            },
+            1: {
+                text: "「哈哈，神里大人今天去参加祭典筹备会议了，给了我半天假。难得的空闲时间，就想在走廊上晒晒太阳喝喝茶。」\n\n他挠了挠头，嘴角露出爽朗的笑容：\n\n「说起来，你能来陪我喝茶，其实挺开心的。平时大家都把我当成'家政官'，很少有人愿意坐下来和我聊聊天。」",
+                choices: [
+                    { next: 4, delta: 10, text: "「那我以后常来陪你喝茶？」" },
+                    { next: 5, delta: 5, text: "「他们只是不好意思麻烦你吧。」" }
+                ]
+            },
+            2: {
+                text: "「哎呀，别这么说嘛！」他假装受伤地捂住胸口，但眼睛里还是带着笑意：\n\n「我可是'万能家政官'托马啊，泡茶、打扫、做饭、修房子——没有我不会的！不过……」\n\n他顿了顿，把一杯茶推到你面前：\n\n「能被人记着我还会泡茶，其实也挺好的。来，尝尝看，这是我自己配的煎茶。」",
+                choices: [
+                    { next: 6, delta: 10, text: "（端起茶杯认真品尝）" },
+                    { next: 7, delta: 0, text: "「你还会自己配茶？这么厉害？」" }
+                ]
+            },
+            3: {
+                text: "他似乎没想到你会选择安静地坐下，微微愣了一下，然后露出一个更加柔和的笑容。\n\n枫叶打着旋儿落在廊下，阳光穿过叶隙在你们之间投下斑驳的光影。\n\n「……其实，我很喜欢这样的时刻。不用说话，不用忙忙碌碌，就只是这样坐着，看着风卷起落叶，听着远处的铃铛声。」\n\n他的声音放轻了一些，像是在自言自语。",
+                choices: [
+                    { next: 8, delta: 15, text: "「我陪你多坐一会儿。」" },
+                    { next: 9, delta: 5, text: "「原来托马也有这么安静的一面。」" }
+                ]
+            },
+            4: {
+                text: "「真的？」他眼睛亮了一下，像是没料到你会这么说，随即露出一个灿烂的笑容：\n\n「那可说定了！下次我准备稻妻特有的樱饼——不是那种量产的，是我自己做的。还有我珍藏的玄米茶，一般人我都不给他喝！」\n\n他挠了挠脸颊：\n\n「……其实也不是什么珍贵的东西，就是觉得有人一起分享的话，会更好喝一点。」",
+                choices: [
+                    { next: 10, delta: 15, text: "「那我很期待。」" }
+                ]
+            },
+            5: {
+                text: "「也许吧。」他笑着摆了摆手，但眼神里有一丝不易察觉的温柔：\n\n「其实也没关系啦，能帮到大家就好。不过……偶尔像这样停下来，和你一起坐在这里晒晒太阳，感觉也挺不错的。」\n\n阳光落在他金色的发丝上，像是有细碎的金沙在流动。",
+                choices: [
+                    { next: 10, delta: 10, text: "「以后我们可以常这样。」" }
+                ]
+            },
+            6: {
+                text: "你端起茶杯，温热的触感从指尖传来。茶香中带着淡淡的烘焙香气，入口温润，后味有一丝不易察觉的清甜。\n\n「怎么样？」他有些期待地看着你，像是个等待夸奖的孩子。",
+                choices: [
+                    { next: 10, delta: 15, text: "「很好喝，比我喝过的很多茶都好。」" },
+                    { next: 10, delta: 5, text: "「还行吧，勉强及格。」" }
+                ]
+            },
+            7: {
+                text: "「那当然！」他得意地挺起胸膛：\n\n「我刚来稻妻的时候，在茶园打过工呢。那时候每天跟着老师傅学炒茶，手都烫起泡了——不过现在想起来，那段日子还挺有意思的。」\n\n他的眼神飘向远方，像是想起了什么有趣的往事：\n\n「说起来，我还会自己拼配不同的茶叶呢。这个茶里我加了一点樱花烘焙的香气，尝出来了吗？」",
+                choices: [
+                    { next: 10, delta: 10, text: "「你经历真丰富，好想多听听。」" }
+                ]
+            },
+            8: {
+                text: "他愣住了，然后低下头笑了，那笑容里没有了平时那种恰到好处的得体，多了几分真实的松弛。\n\n「……好啊。」\n\n风卷起枫叶，一片红叶打着旋儿落在你们之间的茶桌上。他伸手捡起那片叶子，指尖轻轻拂过叶脉：\n\n「其实我在稻妻也没有什么亲人。有时候看着别人一家人坐在一起喝茶，还是会有点羡慕的。」\n\n他抬头看向你，绿色的眼眸里映着午后的阳光：\n\n「不过现在，好像也没那么羡慕了。」",
+                choices: [
+                    { next: 10, delta: 20, text: "「如果你愿意的话，我可以是你的家人。」" }
+                ]
+            },
+            9: {
+                text: "「哈哈，被你发现了。」他摸了摸鼻子：\n\n「平时在神里家要照顾大家，在外面要维持'万能家政官'的形象，好像永远都在忙。只有在没人的时候，才能这样安安静静地发会儿呆。」\n\n他侧过头看向你：\n\n「不过……在你面前好像不用那么累。就算不说话，也觉得很自在。」",
+                choices: [
+                    { next: 10, delta: 15, text: "「那就做你自己就好。」" }
+                ]
+            },
+            10: {
+                text: "阳光西斜，廊下的影子被拉得很长。\n\n托马端起茶杯，朝着你举了举杯，金色的发丝在夕阳下泛着温暖的光。\n\n「今天真的很开心。好久没有这么放松地聊过天了。」\n\n他的笑容比平时更加柔和，少了几分刻意的周到，多了几分真诚的暖意。\n\n「下次——不，以后常来陪我喝茶吧。我给你泡最好的茶，做最好吃的点心。」\n\n风穿过庭院，卷起一阵枫叶，在你们身边轻轻打转。\n\n🍂 【故事 · 完】",
+                choices: []
+            }
+        };
+
+        function updateAffection(delta) {
+            affection += delta;
+            if (affection < 0) affection = 0;
+            if (affection > 100) affection = 100;
+            
+            document.getElementById('affection-bar').style.width = affection + '%';
+            document.getElementById('affection-text').textContent = affection;
+        }
+
+        function typeWriter(text, element, callback) {
+            let i = 0;
+            element.innerHTML = '';
+            element.classList.add('typing-cursor');
+            
+            function type() {
+                if (i < text.length) {
+                    if (text.charAt(i) === '\n') {
+                        element.innerHTML += '<br><br>';
+                    } else {
+                        element.innerHTML += text.charAt(i);
+                    }
+                    i++;
+                    setTimeout(type, 30);
+                } else {
+                    element.classList.remove('typing-cursor');
+                    if (callback) callback();
+                }
+            }
+            type();
+        }
+
+        function makeChoice(choiceIndex) {
+            const scene = scenes[currentScene];
+            const choice = scene.choices[choiceIndex];
+            
+            updateAffection(choice.delta);
+            currentScene = choice.next;
+            
+            const nextScene = scenes[currentScene];
+            
+            document.getElementById('dialog').classList.remove('fade-in');
+            document.getElementById('choices').classList.remove('fade-in');
+            
+            setTimeout(() => {
+                typeWriter(nextScene.text, document.getElementById('dialog-text'), () => {
+                    const choicesContainer = document.getElementById('choices');
+                    choicesContainer.innerHTML = '';
+                    
+                    nextScene.choices.forEach((c, i) => {
+                        const btn = document.createElement('button');
+                        btn.className = 'choice-btn';
+                        btn.textContent = c.text;
+                        btn.onclick = () => makeChoice(i);
+                        choicesContainer.appendChild(btn);
+                    });
+                    
+                    document.getElementById('dialog').classList.add('fade-in');
+                    if (nextScene.choices.length > 0) {
+                        document.getElementById('choices').classList.add('fade-in');
+                    }
+                });
+            }, 300);
+        }
+
+        // 初始化第一个场景的选项
+        function initChoices() {
+            const choicesContainer = document.getElementById('choices');
+            scenes[0].choices.forEach((c, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.textContent = c.text;
+                btn.onclick = () => makeChoice(i);
+                choicesContainer.appendChild(btn);
+            });
+        }
+
+        initChoices();
+    </script>
+</body>
+</html>

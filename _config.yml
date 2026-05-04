@@ -1,0 +1,12 @@
+title: 故事花园 Story Garden
+description: 收集每一个温暖的瞬间
+theme: minima
+
+# GitHub Pages 配置
+baseurl: ""
+url: "https://yourusername.github.io/story-garden"
+
+# 排除文件
+exclude:
+  - README.md
+  - .gitignore
