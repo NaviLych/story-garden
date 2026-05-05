@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>走廊 · 托马物语</title>
+    <link rel="stylesheet" href="../../assets/css/common.css">
+    <style>
+        .scene-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem 5rem;
+        }
+
+        .scene-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .scene-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #ff6b35, #ff9d00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.3rem;
+        }
+
+        .scene-time {
+            color: rgba(255, 236, 209, 0.5);
+            font-size: 0.9rem;
+        }
+
+        .character-area {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .character-sprite {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .dialog-box {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .name-tag {
+            background: linear-gradient(90deg, #ff6b35, #ff9d00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+        }
+
+        .dialog-text {
+            color: var(--accent);
+            line-height: 1.8;
+        }
+
+        .action-grid {
+            display: grid;
+            gap: 0.8rem;
+        }
+
+        .action-btn {
+            background: linear-gradient(145deg, rgba(255, 157, 0, 0.1), rgba(255, 107, 53, 0.05));
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            color: var(--accent);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .action-btn:hover:not(:disabled) {
+            background: linear-gradient(145deg, rgba(255, 157, 0, 0.2), rgba(255, 107, 53, 0.1));
+            border-color: rgba(255, 157, 0, 0.6);
+            transform: translateX(5px);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .action-cost {
+            font-size: 0.85rem;
+            color: #ff9d00;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .back-btn {
+            color: var(--accent);
+            text-decoration: none;
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+            font-size: 0.9rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .back-btn:hover {
+            opacity: 1;
+        }
+
+        .status-mini {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .status-mini span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .map-nav {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding: 0.5rem 0;
+            margin-bottom: 1rem;
+        }
+
+        .map-btn {
+            background: rgba(255, 157, 0, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            color: var(--accent);
+            font-size: 0.85rem;
+            cursor: pointer;
+            white-space: nowrap;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .map-btn.active {
+            background: linear-gradient(90deg, #ff6b35, #ff9d00);
+            border-color: transparent;
+        }
+
+        .map-btn:hover:not(.active) {
+            background: rgba(255, 157, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-light light-1"></div>
+    <div class="ambient-light light-2"></div>
+
+    <div class="scene-container">
+        <div class="top-bar">
+            <button class="back-btn" onclick="goToMap()">🗺️ 地图</button>
+            <div class="status-mini">
+                <span>❤️ <span id="aff-display">30</span></span>
+                <span>⚡ <span id="nrg-display">100</span></span>
+            </div>
+        </div>
+
+        <!-- 快速导航 -->
+        <div class="map-nav">
+            <button class="map-btn active">🏡 走廊</button>
+            <button class="map-btn" onclick="goToScene('garden')">🌿 庭院</button>
+            <button class="map-btn" onclick="goToScene('kitchen')">🍱 厨房</button>
+            <button class="map-btn" onclick="goToScene('street')">🏮 街头</button>
+        </div>
+
+        <div class="scene-header">
+            <h1 class="scene-title">社奉行邸 · 走廊</h1>
+            <p class="scene-time" id="time-display">正午</p>
+        </div>
+
+        <!-- 角色立绘区 -->
+        <div class="character-area">
+            <img src="https://picsum.photos/id/1062/600/400" alt="托马" class="character-sprite">
+        </div>
+
+        <!-- 对话区 -->
+        <div class="dialog-box" id="main-dialog">
+            <div class="name-tag">托马</div>
+            <div class="dialog-text">
+                「来，先坐在这里歇口气。我去给你倒茶，刚沏的，还热着呢。」
+
+他提着菜走向厨房，脚步轻快得完全不像是刚从外面采购回来。
+
+阳光透过廊檐洒进来，在木质地板上投下斑驳的光影。空气中漂浮着淡淡的茶香。
+            </div>
+        </div>
+
+        <!-- 行动选择 -->
+        <div class="action-grid" id="action-list">
+            <button class="action-btn" onclick="doAction('wait')">
+                <span>安静坐着等托马回来</span>
+                <span class="action-cost">⚡ -0</span>
+            </button>
+            <button class="action-btn" onclick="doAction('look')">
+                <span>四处打量一下周围的环境</span>
+                <span class="action-cost">⚡ -5</span>
+            </button>
+            <button class="action-btn" onclick="doAction('help')">
+                <span>去厨房看看要不要帮忙</span>
+                <span class="action-cost">⚡ -10</span>
+            </button>
+            <button class="action-btn" onclick="doAction('rest')">
+                <span>靠在廊柱上打个盹</span>
+                <span class="action-cost">⚡ +20</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let gameState = JSON.parse(localStorage.getItem('thomaStory_save') || '{}');
+
+        const timeNames = {
+            morning: '清晨',
+            noon: '正午',
+            afternoon: '午后',
+            evening: '傍晚',
+            night: '夜晚'
+        };
+
+        function updateUI() {
+            document.getElementById('aff-display').textContent = gameState.affection || 30;
+            document.getElementById('nrg-display').textContent = gameState.energy || 100;
+            document.getElementById('time-display').textContent = timeNames[gameState.time] || '正午';
+        }
+
+        function saveGame() {
+            localStorage.setItem('thomaStory_save', JSON.stringify(gameState));
+        }
+
+        function goToMap() {
+            window.location.href = 'index.html#game-main';
+        }
+
+        function goToScene(scene) {
+            window.location.href = `scene_${scene}.html`;
+        }
+
+        function doAction(action) {
+            const dialog = document.querySelector('.dialog-text');
+            const actions = document.getElementById('action-list');
+
+            switch(action) {
+                case 'wait':
+                    dialog.innerHTML = '你安静地坐在廊下，看着风吹过庭院的樱树。
+
+花瓣打着旋儿飘落到走廊上，有一片甚至落在了你的膝头。
+
+「久等了！」
+
+托马端着茶盘走了过来，上面放着两杯煎茶，还有一小碟樱饼。
+
+「来尝尝这个，是我自己做的。外面卖的总是太甜了，我调整过配方。」
+
+❤️ 好感度 +5';
+                    gameState.affection += 5;
+                    gameState.flags.teaServed = true;
+                    break;
+
+                case 'look':
+                    dialog.innerHTML = '你站起身四处打量。
+
+走廊的布置雅致而不张扬，处处透着神里家的品味。
+
+廊下挂着一个旧草帽，看起来不像是装饰用的。帽檐上还缝着一个有点幼稚的樱花瓣刺绣。
+
+「啊，那个是我的。」
+
+托马不知什么时候回来了，有点不好意思地挠挠头：
+
+「刚来稻妻的时候晒黑了好几个度，就买了这个帽子。现在倒是很少戴了。」
+
+❤️ 好感度 +3
+📦 获得物品：【托马的旧草帽】*1';
+                    gameState.affection += 3;
+                    gameState.energy -= 5;
+                    gameState.inventory.push('old-hat');
+                    break;
+
+                case 'help':
+                    dialog.innerHTML = '你来到厨房。
+
+托马正系着围裙，动作利落地在灶台前忙碌着，完全看不出平时那个爽朗的家政官模样。
+
+「咦？你怎么过来了？没事，我一个人忙得过来啦。」
+
+话是这么说，但他看到你愿意帮忙，眼睛却亮了一下。
+
+「那就……帮我把那个盘子递过来吧？谢啦！」
+
+两个人一起准备茶点，效率快了不少。聊着天，时间不知不觉就过去了。
+
+❤️ 好感度 +8
+⚡ 精力 -10';
+                    gameState.affection += 8;
+                    gameState.energy -= 10;
+                    break;
+
+                case 'rest':
+                    dialog.innerHTML = '你靠在廊柱上，伴着温暖的阳光打了个盹。
+
+不知睡了多久，醒来时身上多了一件外套。
+
+「看你睡着了，就给你披了件。」
+
+托马坐在不远处，手里织着什么东西，看到你醒了，露出一个温和的笑容：
+
+「休息好了？茶刚好温着，现在喝正合适。」
+
+⚡ 精力 +20
+❤️ 好感度 +5';
+                    gameState.energy = Math.min(100, gameState.energy + 20);
+                    gameState.affection += 5;
+                    break;
+            }
+
+            saveGame();
+            updateUI();
+
+            // 隐藏动作按钮，显示继续
+            actions.innerHTML = `
+                <button class="action-btn" onclick="continueAfterAction()">
+                    <span>继续</span>
+                    <span class="action-cost">→</span>
+                </button>
+            `;
+        }
+
+        function continueAfterAction() {
+            // 推进剧情到下一个阶段
+            gameState.time = 'afternoon';
+            saveGame();
+            window.location.reload();
+        }
+
+        // 初始化
+        updateUI();
+    </script>
+</body>
+</html>

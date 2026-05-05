@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>托马物语 | Thoma Story</title>
+    <link rel="stylesheet" href="../../assets/css/common.css">
+    <style>
+        /* 游戏主界面样式 */
+        .game-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .main-menu {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .game-title {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff6b35, #ff9d00, #ffcd3b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 60px rgba(255, 107, 53, 0.3);
+        }
+
+        .game-subtitle {
+            color: rgba(255, 236, 209, 0.6);
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+        }
+
+        .menu-buttons {
+            display: grid;
+            gap: 1rem;
+            max-width: 400px;
+            margin: 0 auto 3rem;
+        }
+
+        .menu-btn {
+            background: linear-gradient(145deg, rgba(255, 157, 0, 0.1), rgba(255, 107, 53, 0.05));
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.2rem 2rem;
+            color: var(--accent);
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+
+        .menu-btn:hover {
+            background: linear-gradient(145deg, rgba(255, 157, 0, 0.2), rgba(255, 107, 53, 0.1));
+            border-color: rgba(255, 157, 0, 0.6);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.2);
+        }
+
+        .menu-btn.locked {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .menu-btn.locked:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .module-icon {
+            font-size: 1.5rem;
+        }
+
+        .module-info {
+            text-align: left;
+            flex: 1;
+        }
+
+        .module-name {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .module-desc {
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        .lock-text {
+            font-size: 0.8rem;
+            color: #ff6b35;
+        }
+
+        /* 状态栏 */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-label {
+            font-size: 0.9rem;
+            color: rgba(255, 236, 209, 0.7);
+        }
+
+        .status-value {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .bar-container {
+            width: 100px;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .affection-bar {
+            background: linear-gradient(90deg, #ff6b35, #ff9d00);
+        }
+
+        .energy-bar {
+            background: linear-gradient(90deg, #4ade80, #22c55e);
+        }
+
+        /* 场景选择 */
+        .scene-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .scene-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .scene-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 157, 0, 0.6);
+            box-shadow: 0 15px 40px rgba(255, 107, 53, 0.2);
+        }
+
+        .scene-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .scene-name {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .scene-desc {
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(26, 15, 10, 0.98), rgba(26, 15, 10, 0.9));
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border-color);
+            padding: 0.8rem 1rem;
+            z-index: 100;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 236, 209, 0.6);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            color: #ff9d00;
+        }
+
+        .nav-icon {
+            font-size: 1.3rem;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 2rem;
+            }
+
+            .status-bar {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .game-container {
+                padding-bottom: 5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 装饰光效 -->
+    <div class="ambient-light light-1"></div>
+    <div class="ambient-light light-2"></div>
+
+    <div class="game-container">
+        <!-- 主菜单界面 -->
+        <div id="main-menu" class="main-menu">
+            <h1 class="game-title">🍁 托马物语</h1>
+            <p class="game-subtitle">在稻妻的午后，遇见属于你们的故事</p>
+
+            <div class="menu-buttons">
+                <button class="menu-btn" onclick="startGame()">
+                    <span class="module-icon">▶️</span>
+                    <div class="module-info">
+                        <div class="module-name">继续游戏</div>
+                        <div class="module-desc">从上次离开的地方继续</div>
+                    </div>
+                </button>
+
+                <button class="menu-btn" onclick="startNewGame()">
+                    <span class="module-icon">✨</span>
+                    <div class="module-info">
+                        <div class="module-name">新的开始</div>
+                        <div class="module-desc">开始一段全新的故事</div>
+                    </div>
+                </button>
+
+                <button class="menu-btn locked">
+                    <span class="module-icon">🎨</span>
+                    <div class="module-info">
+                        <div class="module-name">CG 画廊</div>
+                        <div class="module-desc">查看解锁的回忆与插画</div>
+                    </div>
+                    <span class="lock-text">🔒 待解锁</span>
+                </button>
+
+                <button class="menu-btn locked">
+                    <span class="module-icon">📖</span>
+                    <div class="module-info">
+                        <div class="module-name">物品图鉴</div>
+                        <div class="module-desc">收集的物品与回忆碎片</div>
+                    </div>
+                    <span class="lock-text">🔒 待解锁</span>
+                </button>
+            </div>
+
+            <div style="color: rgba(255,236,209,0.4); font-size: 0.85rem;">
+                <a href="../../index.html" style="color: inherit; text-decoration: none;">← 返回故事花园</a>
+            </div>
+        </div>
+
+        <!-- 游戏主界面（初始隐藏） -->
+        <div id="game-main" style="display: none;">
+            <!-- 状态栏 -->
+            <div class="status-bar">
+                <div class="status-item">
+                    <span>📅</span>
+                    <span class="status-label">第</span>
+                    <span class="status-value" id="day-display">1</span>
+                    <span class="status-label">天</span>
+                    <span class="status-value" id="time-display">· 清晨</span>
+                </div>
+                <div class="status-item">
+                    <span>❤️</span>
+                    <div class="bar-container">
+                        <div class="bar-fill affection-bar" id="affection-bar" style="width: 30%"></div>
+                    </div>
+                    <span class="status-value" id="affection-value">30</span>
+                </div>
+                <div class="status-item">
+                    <span>⚡</span>
+                    <div class="bar-container">
+                        <div class="bar-fill energy-bar" id="energy-bar" style="width: 100%"></div>
+                    </div>
+                    <span class="status-value" id="energy-value">100</span>
+                </div>
+            </div>
+
+            <!-- 场景选择 -->
+            <h2 style="text-align: center; margin-bottom: 1rem; color: var(--accent);">📍 选择地点</h2>
+            <div class="scene-grid">
+                <div class="scene-card" onclick="goToScene('corridor')">
+                    <div class="scene-icon">🏡</div>
+                    <div class="scene-name">走廊</div>
+                    <div class="scene-desc">社奉行邸的长廊，托马常在这里晒太阳</div>
+                </div>
+                <div class="scene-card" onclick="goToScene('garden')">
+                    <div class="scene-icon">🌿</div>
+                    <div class="scene-name">庭院</div>
+                    <div class="scene-desc">种着樱花的小院，偶尔能遇到流浪小猫</div>
+                </div>
+                <div class="scene-card" onclick="goToScene('kitchen')">
+                    <div class="scene-icon">🍱</div>
+                    <div class="scene-name">厨房</div>
+                    <div class="scene-desc">托马大展身手的地方，总是飘着香气</div>
+                </div>
+                <div class="scene-card" onclick="goToScene('street')">
+                    <div class="scene-icon">🏮</div>
+                    <div class="scene-name">鸣神岛街头</div>
+                    <div class="scene-desc">热闹的街道，有各色商铺和行人</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div id="bottom-nav" class="bottom-nav" style="display: none;">
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="showTab('map')">
+                <span class="nav-icon">🗺️</span>
+                <span>地图</span>
+            </button>
+            <button class="nav-btn" onclick="showTab('inventory')">
+                <span class="nav-icon">🎒</span>
+                <span>物品</span>
+            </button>
+            <button class="nav-btn" onclick="showTab('status')">
+                <span class="nav-icon">📊</span>
+                <span>状态</span>
+            </button>
+            <button class="nav-btn" onclick="goToMenu()">
+                <span class="nav-icon">🏠</span>
+                <span>菜单</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 游戏状态
+        let gameState = {
+            day: 1,
+            time: 'morning', // morning, noon, afternoon, evening, night
+            affection: 30,
+            energy: 100,
+            inventory: [],
+            unlockedCG: [],
+            currentScene: 'menu',
+            flags: {} // 剧情标记
+        };
+
+        const timeNames = {
+            morning: '清晨',
+            noon: '正午',
+            afternoon: '午后',
+            evening: '傍晚',
+            night: '夜晚'
+        };
+
+        // 保存/加载游戏
+        function saveGame() {
+            localStorage.setItem('thomaStory_save', JSON.stringify(gameState));
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('thomaStory_save');
+            if (saved) {
+                gameState = JSON.parse(saved);
+                return true;
+            }
+            return false;
+        }
+
+        // 更新UI显示
+        function updateUI() {
+            document.getElementById('day-display').textContent = gameState.day;
+            document.getElementById('time-display').textContent = '· ' + timeNames[gameState.time];
+            document.getElementById('affection-bar').style.width = gameState.affection + '%';
+            document.getElementById('affection-value').textContent = gameState.affection;
+            document.getElementById('energy-bar').style.width = gameState.energy + '%';
+            document.getElementById('energy-value').textContent = gameState.energy;
+        }
+
+        // 开始游戏
+        function startGame() {
+            if (loadGame()) {
+                showGameUI();
+            } else {
+                startNewGame();
+            }
+        }
+
+        function startNewGame() {
+            gameState = {
+                day: 1,
+                time: 'morning',
+                affection: 30,
+                energy: 100,
+                inventory: [],
+                unlockedCG: [],
+                currentScene: 'menu',
+                flags: {}
+            };
+            saveGame();
+            showGameUI();
+            // 跳转到序章剧情
+            setTimeout(() => {
+                window.location.href = 'story.html?scene=prologue';
+            }, 500);
+        }
+
+        function showGameUI() {
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('game-main').style.display = 'block';
+            document.getElementById('bottom-nav').style.display = 'block';
+            updateUI();
+        }
+
+        function goToMenu() {
+            document.getElementById('main-menu').style.display = 'block';
+            document.getElementById('game-main').style.display = 'none';
+            document.getElementById('bottom-nav').style.display = 'none';
+        }
+
+        function goToScene(scene) {
+            window.location.href = `scene_${scene}.html`;
+        }
+
+        function showTab(tab) {
+            // 后续实现标签切换
+            alert(tab + ' 功能开发中...');
+        }
+
+        // 检查是否有存档
+        window.onload = function() {
+            if (localStorage.getItem('thomaStory_save')) {
+                // 有存档，保持"继续游戏"可用
+            }
+        };
+    </script>
+</body>
+</html>
