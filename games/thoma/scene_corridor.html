@@ -342,12 +342,12 @@
             updateUI();
 
             // 隐藏动作按钮，显示继续
-            actions.innerHTML = `
-                <button class="action-btn" onclick="continueAfterAction()">
-                    <span>继续</span>
-                    <span class="action-cost">→</span>
-                </button>
-            `;
+            actions.innerHTML = '';
+            const continueBtn = document.createElement('button');
+            continueBtn.className = 'action-btn';
+            continueBtn.innerHTML = '<span>继续</span><span class="action-cost">→</span>';
+            continueBtn.onclick = continueAfterAction;
+            actions.appendChild(continueBtn);
         }
 
         function continueAfterAction() {

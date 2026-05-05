@@ -203,30 +203,27 @@
             const speaker = document.getElementById('speaker-tag');
             const choices = document.getElementById('choices');
 
-            choices.innerHTML = '<div style="text-align: center; color: rgba(255,236,209,0.5);">点击继续...</div>';
-            choices.onclick = function() {
+            // 显示「点击继续」提示
+            choices.innerHTML = '<div style="text-align: center; color: rgba(255,236,209,0.5); cursor: pointer; padding: 1rem;">点击继续...</div>';
+            choices.children[0].onclick = function() {
                 speaker.textContent = '托马';
-                dialog.innerHTML = '「哎呀，是新来的帮手吗？欢迎欢迎！」
+                dialog.innerHTML = '「哎呀，是新来的帮手吗？欢迎欢迎！」\n\n金色头发的青年笑着朝你挥了挥手，手里还提着刚买的菜。\n\n他穿着红黑相间的服饰，发间编着几根红色的流苏，眼睛是像猫一样漂亮的碧绿色。\n\n「我叫托马，是这里的家政官。有什么不懂的尽管问我就好！」\n\n他伸手接过你手里的行李，动作自然得像是认识了很久的朋友。\n\n「先别站在门口了，进来吧！我刚泡了新茶，我们边喝边聊。」';
 
-金色头发的青年笑着朝你挥了挥手，手里还提着刚买的菜。
-
-他穿着红黑相间的服饰，发间编着几根红色的流苏，眼睛是像猫一样漂亮的碧绿色。
-
-「我叫托马，是这里的家政官。有什么不懂的尽管问我就好！」
-
-他伸手接过你手里的行李，动作自然得像是认识了很久的朋友。
-
-「先别站在门口了，进来吧！我刚泡了新茶，我们边喝边聊。」';
-
-                choices.onclick = null;
-                choices.innerHTML = `
-                    <button class="choice-btn" onclick="goToCorridor()">
-                        「麻烦你了，托马。」
-                    </button>
-                    <button class="choice-btn" onclick="goToCorridor()">
-                        （点头，跟着他进去）
-                    </button>
-                `;
+                // 显示选择按钮
+                choices.innerHTML = '';
+                
+                const btn1 = document.createElement('button');
+                btn1.className = 'choice-btn';
+                btn1.textContent = '「麻烦你了，托马。」';
+                btn1.onclick = goToCorridor;
+                
+                const btn2 = document.createElement('button');
+                btn2.className = 'choice-btn';
+                btn2.textContent = '（点头，跟着他进去）';
+                btn2.onclick = goToCorridor;
+                
+                choices.appendChild(btn1);
+                choices.appendChild(btn2);
 
                 gameState.affection += 2;
                 saveGame();
