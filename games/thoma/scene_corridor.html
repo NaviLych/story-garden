@@ -211,24 +211,7 @@
         </div>
 
         <!-- 行动选择 -->
-        <div class="action-grid" id="action-list">
-            <button class="action-btn" onclick="doAction('wait')">
-                <span>安静坐着等托马回来</span>
-                <span class="action-cost">⚡ -0</span>
-            </button>
-            <button class="action-btn" onclick="doAction('look')">
-                <span>四处打量一下周围的环境</span>
-                <span class="action-cost">⚡ -5</span>
-            </button>
-            <button class="action-btn" onclick="doAction('help')">
-                <span>去厨房看看要不要帮忙</span>
-                <span class="action-cost">⚡ -10</span>
-            </button>
-            <button class="action-btn" onclick="doAction('rest')">
-                <span>靠在廊柱上打个盹</span>
-                <span class="action-cost">⚡ +20</span>
-            </button>
-        </div>
+        <div class="action-grid" id="action-list"></div>
     </div>
 
     <script>
@@ -496,6 +479,20 @@
                 }
             }
             // 否则显示初始四个选项
+            const initialActions = [
+                { text: '安静坐着等托马回来', cost: '⚡ -0', action: 'wait' },
+                { text: '四处打量一下周围的环境', cost: '⚡ -5', action: 'look' },
+                { text: '去厨房看看要不要帮忙', cost: '⚡ -10', action: 'help' },
+                { text: '靠在廊柱上打个盹', cost: '⚡ +20', action: 'rest' }
+            ];
+            
+            initialActions.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = 'action-btn';
+                btn.innerHTML = `<span>${item.text}</span><span class="action-cost">${item.cost}</span>`;
+                btn.onclick = () => doAction(item.action);
+                actions.appendChild(btn);
+            });
         }
 
         // 初始化
