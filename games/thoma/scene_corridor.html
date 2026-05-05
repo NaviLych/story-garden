@@ -351,10 +351,109 @@
         }
 
         function continueAfterAction() {
-            // 推进剧情到下一个阶段
-            gameState.time = 'afternoon';
+            const dialog = document.querySelector('.dialog-text');
+            const actions = document.getElementById('action-list');
+            const sceneTitle = document.querySelector('.scene-title');
+            
+            // 如果还没进入茶会阶段，进入茶会时间
+            if (!gameState.flags.teaPhase) {
+                gameState.flags.teaPhase = true;
+                gameState.time = 'afternoon';
+                
+                sceneTitle.textContent = '社奉行邸 · 茶会时间';
+                dialog.innerHTML = '阳光穿过廊道，在茶碗里投下细碎的光斑。\n\n托马坐在你对面，端起茶杯轻轻吹了吹。\n\n「说起来，你是第一次来稻妻吧？有什么想去的地方吗？」\n\n他的手指在杯沿轻轻摩挲，碧绿色的眼睛看着你，带着温和的笑意。';
+                
+                // 茶会阶段的选项
+                actions.innerHTML = '';
+                
+                const options = [
+                    { text: '「鸣神大社，想去看看樱花。」', aff: 3, key: 'shrine' },
+                    { text: '「想尝尝稻妻的特色料理。」', aff: 5, key: 'food' },
+                    { text: '「其实……对你更感兴趣。」', aff: 8, key: 'curious' },
+                    { text: '（低头喝茶，不说话）', aff: 2, key: 'quiet' }
+                ];
+                
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'action-btn';
+                    btn.innerHTML = `<span>${opt.text}</span><span class="action-cost">❤️ +${opt.aff}</span>`;
+                    btn.onclick = () => teaChoice(opt);
+                    actions.appendChild(btn);
+                });
+                
+                saveGame();
+                updateUI();
+            }
+        }
+        
+        function teaChoice(opt) {
+            const dialog = document.querySelector('.dialog-text');
+            const actions = document.getElementById('action-list');
+            
+            gameState.affection += opt.aff;
+            gameState.flags.teaChoice = opt.key;
+            
+            let response = '';
+            switch(opt.key) {
+                case 'shrine':
+                    response = '「鸣神大社啊，确实是个好地方。」\n\n托马的眼中闪过一丝怀念：「下次我带你去吧，我知道一条人少的小路，沿途的风景比山顶还好看。」\n\n「而且，八重神子大人那里的……」他忽然压低声音：「那里的油豆腐，全稻妻最好吃。」';
+                    break;
+                case 'food':
+                    response = '托马眼睛一下子亮了：「那你可问对人了！」\n\n「志村屋的味增汤、乌冬亭的天妇罗、还有小吃摊的三彩团子——说起来，你现在想吃吗？我现在就可以给你做！」\n\n他说着就要站起来，一副跃跃欲试的样子。';
+                    break;
+                case 'curious':
+                    response = '托马愣了一下，然后轻笑出声，耳尖微微泛红。\n\n「……哦？」他饶有兴致地看着你，尾音带着一点笑意上扬：「那你想知道什么？」\n\n「我从哪里来？喜欢吃什么？还是——」他往前微微倾身，声音放得更低：「有没有喜欢的人？」';
+                    break;
+                case 'quiet':
+                    response = '你没有说话，只是端起茶杯小口喝着。\n\n温热的茶流过喉咙，带着一点樱花的香气。\n\n托马也没有催促，只是安静地陪着你。风吹过庭院，樱花瓣飘落在廊下，时间仿佛慢了下来。\n\n过了一会儿，他轻声说：「……其实，这样也挺好。」';
+                    break;
+            }
+            
+            dialog.innerHTML = response;
+            
+            // 茶会结束选项
+            actions.innerHTML = '';
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'action-btn';
+            nextBtn.innerHTML = '<span>（茶会结束，接下来……）</span><span class="action-cost">→</span>';
+            nextBtn.onclick = endTeaParty;
+            actions.appendChild(nextBtn);
+            
             saveGame();
-            window.location.reload();
+            updateUI();
+        }
+        
+        function endTeaParty() {
+            const dialog = document.querySelector('.dialog-text');
+            const actions = document.getElementById('action-list');
+            
+            dialog.innerHTML = '夕阳把走廊染成了温暖的金色。\n\n托马收拾好茶盘，回头对你笑了笑：「今天真是开心，很久没有这么悠闲地喝过茶了。」\n\n「接下来你打算做什么？要在社奉行逛逛，还是我带你去城里走走？」';
+            
+            actions.innerHTML = '';
+            
+            const places = [
+                { name: '🌿 去庭院走走', scene: 'garden' },
+                { name: '🍱 去厨房看看', scene: 'kitchen' },
+                { name: '🏮 去鸣神岛街头', scene: 'street' },
+                { name: '😴 就在这里再坐一会儿', scene: 'stay' }
+            ];
+            
+            places.forEach(place => {
+                const btn = document.createElement('button');
+                btn.className = 'action-btn';
+                btn.innerHTML = `<span>${place.name}</span><span class="action-cost">→</span>`;
+                btn.onclick = () => {
+                    if (place.scene === 'stay') {
+                        dialog.innerHTML = '你选择继续坐在廊下。\n\n托马也没有走，他拿来了针线和布料，坐在你旁边开始缝补什么。\n\n「是给流浪小猫做的小窝。」他笑着说：「最近天气凉了，它们总在夜里发抖。」\n\n夕阳照着他认真的侧脸，你们就这样安静地坐着，直到星星爬上夜空。\n\n✨ 【第一章 · 初遇】完成';
+                        actions.innerHTML = '';
+                        gameState.flags.chapter1Complete = true;
+                        saveGame();
+                    } else {
+                        window.location.href = `scene_${place.scene}.html`;
+                    }
+                };
+                actions.appendChild(btn);
+            });
         }
 
         // 初始化
