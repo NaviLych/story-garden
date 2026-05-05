@@ -201,7 +201,7 @@
         <!-- 对话区 -->
         <div class="dialog-box" id="main-dialog">
             <div class="name-tag">托马</div>
-            <div class="dialog-text">
+            <div class="dialog-text" id="dialog-content">
                 「来，先坐在这里歇口气。我去给你倒茶，刚沏的，还热着呢。」
 
 他提着菜走向厨房，脚步轻快得完全不像是刚从外面采购回来。
@@ -456,8 +456,51 @@
             });
         }
 
+        // 初始化场景内容
+        function initSceneContent() {
+            const dialog = document.getElementById('dialog-content');
+            const actions = document.getElementById('action-list');
+            
+            // 如果已经完成茶会
+            if (gameState.flags.teaPhase) {
+                if (gameState.time === 'evening') {
+                    // 傍晚回来
+                    sceneTitle.textContent = '社奉行邸 · 傍晚';
+                    dialog.innerHTML = '夕阳把走廊染成了温暖的金色。\n\n托马端着茶走了过来，在你身边坐下。\n\n「今天玩得开心吗？」他笑着问，碧绿色的眼睛在夕阳下闪闪发光：「我挺开心的……很久没有像今天这样，一整天都陪着某个人了。」\n\n✨ 【第一章 · 初遇】完成';
+                    actions.innerHTML = '';
+                    const btn = document.createElement('button');
+                    btn.className = 'action-btn';
+                    btn.innerHTML = '<span>返回主菜单</span><span class="action-cost">→</span>';
+                    btn.onclick = () => window.location.href = 'index.html';
+                    actions.appendChild(btn);
+                } else {
+                    // 茶会进行中
+                    sceneTitle.textContent = '社奉行邸 · 茶会时间';
+                    dialog.innerHTML = '阳光穿过廊道，在茶碗里投下细碎的光斑。\n\n托马坐在你对面，端起茶杯轻轻吹了吹。\n\n「说起来，你是第一次来稻妻吧？有什么想去的地方吗？」';
+                    
+                    // 显示茶会选项
+                    actions.innerHTML = '';
+                    const options = [
+                        { text: '「鸣神大社，想去看看樱花。」', aff: 3, key: 'shrine' },
+                        { text: '「想尝尝稻妻的特色料理。」', aff: 5, key: 'food' },
+                        { text: '「其实……对你更感兴趣。」', aff: 8, key: 'curious' },
+                        { text: '（低头喝茶，不说话）', aff: 2, key: 'quiet' }
+                    ];
+                    options.forEach(opt => {
+                        const btn = document.createElement('button');
+                        btn.className = 'action-btn';
+                        btn.innerHTML = `<span>${opt.text}</span><span class="action-cost">❤️ +${opt.aff}</span>`;
+                        btn.onclick = () => teaChoice(opt);
+                        actions.appendChild(btn);
+                    });
+                }
+            }
+            // 否则显示初始四个选项
+        }
+
         // 初始化
         updateUI();
+        initSceneContent();
     </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>走廊 · 托马物语</title>
+    <title>街头 · 托马物语</title>
     <link rel="stylesheet" href="../../assets/css/common.css">
     <style>
         .scene-container {
@@ -38,7 +38,6 @@
 
         .character-sprite {
             width: 100%;
-            max-width: 400px;
             border-radius: 12px;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
         }
@@ -62,6 +61,7 @@
         .dialog-text {
             color: var(--accent);
             line-height: 1.8;
+            white-space: pre-line;
         }
 
         .action-grid {
@@ -89,11 +89,6 @@
             background: linear-gradient(145deg, rgba(255, 157, 0, 0.2), rgba(255, 107, 53, 0.1));
             border-color: rgba(255, 157, 0, 0.6);
             transform: translateX(5px);
-        }
-
-        .action-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
         }
 
         .action-cost {
@@ -173,192 +168,137 @@
 
     <div class="scene-container">
         <div class="top-bar">
-            <button class="back-btn" onclick="goToMap()">🗺️ 地图</button>
+            <button class="back-btn" onclick="goToScene('corridor')">← 返回走廊</button>
             <div class="status-mini">
                 <span>❤️ <span id="aff-display">30</span></span>
                 <span>⚡ <span id="nrg-display">100</span></span>
             </div>
         </div>
 
-        <!-- 快速导航 -->
         <div class="map-nav">
-            <button class="map-btn active">🏡 走廊</button>
+            <button class="map-btn" onclick="goToScene('corridor')">🏡 走廊</button>
             <button class="map-btn" onclick="goToScene('garden')">🌿 庭院</button>
             <button class="map-btn" onclick="goToScene('kitchen')">🍱 厨房</button>
-            <button class="map-btn" onclick="goToScene('street')">🏮 街头</button>
+            <button class="map-btn active">🏮 街头</button>
         </div>
 
         <div class="scene-header">
-            <h1 class="scene-title">鸣神岛 · 街头</h1>
-            <p class="scene-time" id="time-display">正午</p>
+            <h1 class="scene-title">鸣神岛 · 午后街头</h1>
+            <p class="scene-time" id="time-display">午后</p>
         </div>
 
-        <!-- 角色立绘区 -->
         <div class="character-area">
-            <img src="../../assets/images/bg_street.jpg" alt="托马" class="character-sprite">
+            <img src="../../assets/images/tohma_street.jpg" alt="托马在街头" class="character-sprite">
         </div>
 
-        <!-- 对话区 -->
-        <div class="dialog-box" id="main-dialog">
+        <div class="dialog-box">
             <div class="name-tag">托马</div>
-            <div class="dialog-text">
-                「来，先坐在这里歇口气。我去给你倒茶，刚沏的，还热着呢。」
+            <div class="dialog-text" id="main-dialog">
+                鸣神岛的街头总是热热闹闹的。
 
-他提着菜走向厨房，脚步轻快得完全不像是刚从外面采购回来。
+小吃摊冒着热气，店家的吆喝声此起彼伏，路过的行人三三两两地聊着天。
 
-阳光透过廊檐洒进来，在木质地板上投下斑驳的光影。空气中漂浮着淡淡的茶香。
+托马熟稔地和每一个店家打招呼，从果蔬摊老板那里接过一袋新鲜的野菜，又被团子店的老板娘塞了两串三彩团子。
+
+「哈哈，谢谢阿姨！」他笑着接过团子，转头递给你一串：「来，这个超好吃，我从小吃到大。」
             </div>
         </div>
 
-        <!-- 行动选择 -->
         <div class="action-grid" id="action-list">
-            <button class="action-btn" onclick="doAction('wait')">
-                <span>安静坐着等托马回来</span>
-                <span class="action-cost">⚡ -0</span>
-            </button>
-            <button class="action-btn" onclick="doAction('look')">
-                <span>四处打量一下周围的环境</span>
-                <span class="action-cost">⚡ -5</span>
-            </button>
-            <button class="action-btn" onclick="doAction('help')">
-                <span>去厨房看看要不要帮忙</span>
-                <span class="action-cost">⚡ -10</span>
-            </button>
-            <button class="action-btn" onclick="doAction('rest')">
-                <span>靠在廊柱上打个盹</span>
-                <span class="action-cost">⚡ +20</span>
-            </button>
         </div>
     </div>
 
     <script>
         let gameState = JSON.parse(localStorage.getItem('thomaStory_save') || '{}');
 
-        const timeNames = {
-            morning: '清晨',
-            noon: '正午',
-            afternoon: '午后',
-            evening: '傍晚',
-            night: '夜晚'
-        };
-
         function updateUI() {
             document.getElementById('aff-display').textContent = gameState.affection || 30;
             document.getElementById('nrg-display').textContent = gameState.energy || 100;
-            document.getElementById('time-display').textContent = timeNames[gameState.time] || '正午';
+            document.getElementById('time-display').textContent = gameState.time === 'evening' ? '傍晚' : '午后';
         }
 
         function saveGame() {
             localStorage.setItem('thomaStory_save', JSON.stringify(gameState));
         }
 
-        function goToMap() {
-            window.location.href = 'index.html#game-main';
-        }
-
         function goToScene(scene) {
             window.location.href = `scene_${scene}.html`;
         }
 
-        function doAction(action) {
-            const dialog = document.querySelector('.dialog-text');
+        function showActions() {
             const actions = document.getElementById('action-list');
-
-            switch(action) {
-                case 'wait':
-                    dialog.innerHTML = '你安静地坐在廊下，看着风吹过庭院的樱树。
-
-花瓣打着旋儿飘落到走廊上，有一片甚至落在了你的膝头。
-
-「久等了！」
-
-托马端着茶盘走了过来，上面放着两杯煎茶，还有一小碟樱饼。
-
-「来尝尝这个，是我自己做的。外面卖的总是太甜了，我调整过配方。」
-
-❤️ 好感度 +5';
-                    gameState.affection += 5;
-                    gameState.flags.teaServed = true;
-                    break;
-
-                case 'look':
-                    dialog.innerHTML = '你站起身四处打量。
-
-走廊的布置雅致而不张扬，处处透着神里家的品味。
-
-廊下挂着一个旧草帽，看起来不像是装饰用的。帽檐上还缝着一个有点幼稚的樱花瓣刺绣。
-
-「啊，那个是我的。」
-
-托马不知什么时候回来了，有点不好意思地挠挠头：
-
-「刚来稻妻的时候晒黑了好几个度，就买了这个帽子。现在倒是很少戴了。」
-
-❤️ 好感度 +3
-📦 获得物品：【托马的旧草帽】*1';
-                    gameState.affection += 3;
-                    gameState.energy -= 5;
-                    gameState.inventory.push('old-hat');
-                    break;
-
-                case 'help':
-                    dialog.innerHTML = '你来到厨房。
-
-托马正系着围裙，动作利落地在灶台前忙碌着，完全看不出平时那个爽朗的家政官模样。
-
-「咦？你怎么过来了？没事，我一个人忙得过来啦。」
-
-话是这么说，但他看到你愿意帮忙，眼睛却亮了一下。
-
-「那就……帮我把那个盘子递过来吧？谢啦！」
-
-两个人一起准备茶点，效率快了不少。聊着天，时间不知不觉就过去了。
-
-❤️ 好感度 +8
-⚡ 精力 -10';
-                    gameState.affection += 8;
-                    gameState.energy -= 10;
-                    break;
-
-                case 'rest':
-                    dialog.innerHTML = '你靠在廊柱上，伴着温暖的阳光打了个盹。
-
-不知睡了多久，醒来时身上多了一件外套。
-
-「看你睡着了，就给你披了件。」
-
-托马坐在不远处，手里织着什么东西，看到你醒了，露出一个温和的笑容：
-
-「休息好了？茶刚好温着，现在喝正合适。」
-
-⚡ 精力 +20
-❤️ 好感度 +5';
-                    gameState.energy = Math.min(100, gameState.energy + 20);
-                    gameState.affection += 5;
-                    break;
+            const dialog = document.getElementById('main-dialog');
+            
+            if (!gameState.flags.streetVisited) {
+                const options = [
+                    { text: '接过团子咬一口', aff: 4, key: 'eat' },
+                    { text: '「你好像和这里的人都很熟。」', aff: 3, key: 'ask' },
+                    { text: '「我们去那边的小吃摊看看吧！」', aff: 6, key: 'explore' }
+                ];
+                
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'action-btn';
+                    btn.innerHTML = `<span>${opt.text}</span><span class="action-cost">❤️ +${opt.aff}</span>`;
+                    btn.onclick = () => streetChoice(opt);
+                    actions.appendChild(btn);
+                });
+            } else {
+                dialog.innerHTML = '街头还是那么热闹。\n\n路过团子店的时候，老板娘笑着朝你们挥了挥手，又要递团子过来。\n\n托马连忙摆手谢绝，但是被硬塞了两个揣在怀里。\n\n「……她说给'媳妇'吃的。」他耳尖微红，把还热乎的团子递给你。';
+                
+                const btn = document.createElement('button');
+                btn.className = 'action-btn';
+                btn.innerHTML = '<span>带着团子回社奉行</span><span class="action-cost">→</span>';
+                btn.onclick = () => {
+                    gameState.time = 'evening';
+                    saveGame();
+                    goToScene('corridor');
+                };
+                actions.appendChild(btn);
             }
-
-            saveGame();
-            updateUI();
-
-            // 隐藏动作按钮，显示继续
-            actions.innerHTML = `
-                <button class="action-btn" onclick="continueAfterAction()">
-                    <span>继续</span>
-                    <span class="action-cost">→</span>
-                </button>
-            `;
         }
 
-        function continueAfterAction() {
-            // 推进剧情到下一个阶段
-            gameState.time = 'afternoon';
+        function streetChoice(opt) {
+            const dialog = document.getElementById('main-dialog');
+            const actions = document.getElementById('action-list');
+            
+            gameState.affection += opt.aff;
+            gameState.flags.streetVisited = true;
+            
+            let response = '';
+            switch(opt.key) {
+                case 'eat':
+                    response = '你接过团子咬了一口。\n\n软糯的糯米包裹着香甜的豆沙，好吃得眼睛都眯了起来。\n\n「对吧对吧！」托马看着你满足的样子，笑得比自己吃到好吃的还开心：「我就知道你会喜欢！」\n\n他自己也咬了一口，粉色的团子沾了一点在嘴角，你忍不住伸手帮他擦掉了。\n\n托马愣了一下，然后耳尖唰地红了。';
+                    break;
+                case 'ask':
+                    response = '「哈哈，毕竟在稻妻待了这么多年嘛。」\n\n他挠了挠头：「刚来的时候语言不通，也没地方去，就天天在街上晃悠，帮店家们跑跑腿什么的。」\n\n「一来二去就熟了——其实稻妻人都挺好的，只是看起来严肃而已。」\n\n正说着，卖鱼的老板大老远就喊：「托马！今天的鲷鱼特别新鲜！带一条回去啊！」\n\n你笑着看向他：「看起来确实挺好的。」';
+                    break;
+                case 'explore':
+                    response = '「好啊！」\n\n托马拉着你的手穿梭在热闹的街道上，像个兴奋的导游一样给你介绍每一个摊位。\n\n「这个章鱼小丸子超好吃！还有那个，稻妻特色的狐狸面具——你要一个吗？」\n\n他给你买了一个白色的狐狸面具，亲手帮你戴上，然后后退两步打量着你，眼睛亮晶晶的：「……好看。」\n\n傍晚的风吹动灯笼，街道上灯火渐次亮起，你们一人拿着一串团子，在逐渐亮起的灯火中慢慢往回走。';
+                    gameState.flags.gotMask = true;
+                    break;
+            }
+            
+            dialog.innerHTML = response;
+            
+            actions.innerHTML = '';
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'action-btn';
+            nextBtn.innerHTML = '<span>（天色渐暗，返回社奉行）</span><span class="action-cost">→</span>';
+            nextBtn.onclick = () => {
+                gameState.time = 'evening';
+                saveGame();
+                goToScene('corridor');
+            };
+            actions.appendChild(nextBtn);
+            
             saveGame();
-            window.location.reload();
+            updateUI();
         }
 
         // 初始化
         updateUI();
+        showActions();
     </script>
 </body>
 </html>
